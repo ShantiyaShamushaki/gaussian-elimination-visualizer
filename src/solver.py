@@ -7,22 +7,35 @@ def LDU_factorize(A):
     L = np.identity(n, float)
     D = np.identity(n, float)
     U = A.copy()  
-    log.append(('U', U.copy()))
     
+    # Initial state
+    log.append(("INIT", U.copy(), "Initial matrix"))
+
+    # Forward elimination to form L and U
     for i in range(n):
         pivot = U[i][i]
         for j in range(i+1, n):
             below = U[j][i]
-            L[j][i] = (below/pivot)
-            log.append(('L', L.copy()))
-            U[j] = U[j] -  (below/pivot) * U[i]
-            log.append(('U', U.copy()))
+            factor = below/pivot
             
+            # Record L update
+            L[j][i] = factor
+            log.append(("L", L.copy(), f"L[{j+1},{i+1}] = {factor:.4f}"))
+            
+            # Row operation
+            U[j] = U[j] -  factor * U[i]
+            
+            # Save U step with explanation
+            explanation = f"R{j+1} ← R{j+1} − ({factor:.4f}) R{i+1}"
+            log.append(("U", U.copy(), explanation))
+       
+    # Diagonal normalization to extract D     
     for i in range(n):
         D[i][i] = U[i][i]
-        log.append(('D', D.copy()))
+        log.append(("D", D.copy(), f"D[{i+1},{i+1}] = {U[i][i]:.4f}"))
+        
         U[i] = U[i] / D[i][i]
-        log.append(('U', U.copy()))
+        log.append(("U", U.copy(), f"R{i+1} ← (1 / {D[i][i]:.4f}) R{i+1}"))
 
     return L, D, U, log
 
